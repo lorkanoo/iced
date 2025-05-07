@@ -178,17 +178,12 @@ where
     P::Theme: DefaultStyle,
 {
     use winit::event_loop::EventLoop;
-
     let mut debug = Debug::new();
     debug.startup_started();
 
-    let event_loop = EventLoop::new().expect("Create event loop");
-    #[cfg(feature = "wayland")]
-    let is_wayland =
-        winit::platform::wayland::EventLoopExtWayland::is_wayland(&event_loop);
-    #[cfg(not(feature = "wayland"))]
+    use winit::platform::windows::EventLoopBuilderExtWindows;
+    let event_loop = EventLoop::builder().with_any_thread(true).build().expect("Create event loop");
     let is_wayland = false;
-
     let (event_sender, event_receiver) = mpsc::unbounded();
     let (proxy, worker): (Proxy<<P as Program>::Message>, _) =
         Proxy::new(event_loop.create_proxy(), event_sender.clone());
